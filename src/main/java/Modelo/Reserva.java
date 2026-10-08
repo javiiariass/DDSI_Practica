@@ -39,25 +39,31 @@ public class Reserva implements Serializable {
     @Basic(optional = false)
     @Column(name = "idReserva")
     private String idReserva;
+
     @Basic(optional = false)
     @Column(name = "fechaReserva")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaReserva;
+
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @Column(name = "importe")
     private BigDecimal importe;
+
     @Basic(optional = false)
     @Column(name = "estado")
     private String estado;
+
     @Column(name = "valoracion")
     private Short valoracion;
+
     @JoinColumn(name = "idCliente", referencedColumnName = "idCliente")
     @ManyToOne(optional = false)
-    private Cliente idCliente;
+    private Cliente cliente;
+
     @JoinColumn(name = "idTurno", referencedColumnName = "idTurno")
     @ManyToOne(optional = false)
-    private Turno idTurno;
+    private Turno turno;
 
     public Reserva() {
     }
@@ -66,11 +72,23 @@ public class Reserva implements Serializable {
         this.idReserva = idReserva;
     }
 
-    public Reserva(String idReserva, Date fechaReserva, BigDecimal importe, String estado) {
+    public Reserva(String idReserva, Date fechaReserva, BigDecimal importe,
+            String estado) {
         this.idReserva = idReserva;
         this.fechaReserva = fechaReserva;
         this.importe = importe;
         this.estado = estado;
+    }
+
+    public Reserva(String idReserva, Date fechaReserva, BigDecimal importe,
+            String estado, Short valoracion, Cliente cliente, Turno turno) {
+        this.idReserva = idReserva;
+        this.fechaReserva = fechaReserva;
+        this.importe = importe;
+        this.estado = estado;
+        this.valoracion = valoracion;
+        this.cliente = cliente;
+        this.turno = turno;
     }
 
     public String getIdReserva() {
@@ -113,20 +131,20 @@ public class Reserva implements Serializable {
         this.valoracion = valoracion;
     }
 
-    public Cliente getIdCliente() {
-        return idCliente;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setIdCliente(Cliente idCliente) {
-        this.idCliente = idCliente;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
-    public Turno getIdTurno() {
-        return idTurno;
+    public Turno getTurno() {
+        return turno;
     }
 
-    public void setIdTurno(Turno idTurno) {
-        this.idTurno = idTurno;
+    public void setTurno(Turno turno) {
+        this.turno = turno;
     }
 
     @Override
@@ -153,5 +171,5 @@ public class Reserva implements Serializable {
     public String toString() {
         return "Modelo.Reserva[ idReserva=" + idReserva + " ]";
     }
-    
+
 }

@@ -5,7 +5,6 @@
 package Modelo;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,10 +12,9 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -36,28 +34,34 @@ import java.util.Set;
 public class Guia implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    
     @Id
     @Basic(optional = false)
     @Column(name = "idGuia")
     private String idGuia;
+    
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
+    
     @Basic(optional = false)
     @Column(name = "apellidos")
     private String apellidos;
+    
     @Basic(optional = false)
     @Column(name = "telefono")
     private String telefono;
+    
     @Basic(optional = false)
     @Column(name = "email")
     private String email;
+    
     @Basic(optional = false)
     @Column(name = "fechaAlta")
-    @Temporal(TemporalType.DATE)
-    private Date fechaAlta;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idGuia")
-    private Set<Turno> turnoSet;
+    private LocalDate fechaAlta;
+    
+    @OneToMany(mappedBy = "guia")
+    private Set<Turno> turnos = new HashSet<Turno>();
 
     public Guia() {
     }
@@ -66,7 +70,7 @@ public class Guia implements Serializable {
         this.idGuia = idGuia;
     }
 
-    public Guia(String idGuia, String nombre, String apellidos, String telefono, String email, Date fechaAlta) {
+    public Guia(String idGuia, String nombre, String apellidos, String telefono, String email, LocalDate fechaAlta) {
         this.idGuia = idGuia;
         this.nombre = nombre;
         this.apellidos = apellidos;
@@ -115,20 +119,20 @@ public class Guia implements Serializable {
         this.email = email;
     }
 
-    public Date getFechaAlta() {
+    public LocalDate getFechaAlta() {
         return fechaAlta;
     }
 
-    public void setFechaAlta(Date fechaAlta) {
+    public void setFechaAlta(LocalDate fechaAlta) {
         this.fechaAlta = fechaAlta;
     }
 
-    public Set<Turno> getTurnoSet() {
-        return turnoSet;
+    public Set<Turno> getTurnos() {
+        return turnos;
     }
 
-    public void setTurnoSet(Set<Turno> turnoSet) {
-        this.turnoSet = turnoSet;
+    public void setTurnos(Set<Turno> turnos) {
+        this.turnos = turnos;
     }
 
     @Override

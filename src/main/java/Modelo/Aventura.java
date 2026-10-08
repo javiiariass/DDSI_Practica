@@ -5,7 +5,6 @@
 package Modelo;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -16,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -36,34 +36,43 @@ import java.util.Set;
 public class Aventura implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    
     @Id
     @Basic(optional = false)
     @Column(name = "idAventura")
     private String idAventura;
+    
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
+    
     @Lob
     @Column(name = "descripcion")
     private String descripcion;
+    
     @Basic(optional = false)
     @Column(name = "tipo")
     private String tipo;
+    
     @Basic(optional = false)
     @Column(name = "dificultad")
     private String dificultad;
+    
     @Basic(optional = false)
     @Column(name = "duracion")
     private short duracion;
+    
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @Column(name = "precio")
     private BigDecimal precio;
+    
     @Basic(optional = false)
     @Column(name = "edadMinima")
     private short edadMinima;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idAventura")
-    private Set<Turno> turnoSet;
+    
+    @OneToMany(mappedBy = "aventura")
+    private Set<Turno> turnos = new HashSet<Turno>();
 
     public Aventura() {
     }
@@ -72,7 +81,8 @@ public class Aventura implements Serializable {
         this.idAventura = idAventura;
     }
 
-    public Aventura(String idAventura, String nombre, String tipo, String dificultad, short duracion, BigDecimal precio, short edadMinima) {
+    public Aventura(String idAventura, String nombre, String tipo, 
+            String dificultad, short duracion, BigDecimal precio, short edadMinima) {
         this.idAventura = idAventura;
         this.nombre = nombre;
         this.tipo = tipo;
@@ -82,6 +92,18 @@ public class Aventura implements Serializable {
         this.edadMinima = edadMinima;
     }
 
+    // Ctor con todos los atributos opcionales
+    public Aventura(String idAventura, String nombre, String descripcion, String tipo, String dificultad, short duracion, BigDecimal precio, short edadMinima) {
+        this.idAventura = idAventura;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.tipo = tipo;
+        this.dificultad = dificultad;
+        this.duracion = duracion;
+        this.precio = precio;
+        this.edadMinima = edadMinima;
+    }
+    
     public String getIdAventura() {
         return idAventura;
     }
@@ -146,12 +168,12 @@ public class Aventura implements Serializable {
         this.edadMinima = edadMinima;
     }
 
-    public Set<Turno> getTurnoSet() {
-        return turnoSet;
+    public Set<Turno> getTurnos() {
+        return turnos;
     }
 
-    public void setTurnoSet(Set<Turno> turnoSet) {
-        this.turnoSet = turnoSet;
+    public void setTurnos(Set<Turno> turnos) {
+        this.turnos = turnos;
     }
 
     @Override

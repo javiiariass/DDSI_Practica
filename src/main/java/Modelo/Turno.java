@@ -5,7 +5,6 @@
 package Modelo;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -15,10 +14,9 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -35,25 +33,30 @@ import java.util.Set;
 public class Turno implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    
     @Id
     @Basic(optional = false)
     @Column(name = "idTurno")
     private String idTurno;
+    
     @Basic(optional = false)
     @Column(name = "fechaHora")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaHora;
+    private LocalDate fechaHora;
+    
     @Basic(optional = false)
     @Column(name = "capacidad")
     private short capacidad;
+
     @JoinColumn(name = "idAventura", referencedColumnName = "idAventura")
     @ManyToOne(optional = false)
-    private Aventura idAventura;
+    private Aventura aventura;
+
     @JoinColumn(name = "idGuia", referencedColumnName = "idGuia")
     @ManyToOne(optional = false)
-    private Guia idGuia;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idTurno")
-    private Set<Reserva> reservaSet;
+    private Guia guia;
+
+    @OneToMany(mappedBy = "turno")
+    private Set<Reserva> reservas = new HashSet<Reserva>();
 
     public Turno() {
     }
@@ -62,10 +65,19 @@ public class Turno implements Serializable {
         this.idTurno = idTurno;
     }
 
-    public Turno(String idTurno, Date fechaHora, short capacidad) {
+    public Turno(String idTurno, LocalDate fechaHora, short capacidad) {
         this.idTurno = idTurno;
         this.fechaHora = fechaHora;
         this.capacidad = capacidad;
+    }
+
+    public Turno(String idTurno, LocalDate fechaHora, short capacidad,
+            Aventura aventura, Guia guia) {
+        this.idTurno = idTurno;
+        this.fechaHora = fechaHora;
+        this.capacidad = capacidad;
+        this.aventura = aventura;
+        this.guia = guia;
     }
 
     public String getIdTurno() {
@@ -76,11 +88,11 @@ public class Turno implements Serializable {
         this.idTurno = idTurno;
     }
 
-    public Date getFechaHora() {
+    public LocalDate getFechaHora() {
         return fechaHora;
     }
 
-    public void setFechaHora(Date fechaHora) {
+    public void setFechaHora(LocalDate fechaHora) {
         this.fechaHora = fechaHora;
     }
 
@@ -92,28 +104,28 @@ public class Turno implements Serializable {
         this.capacidad = capacidad;
     }
 
-    public Aventura getIdAventura() {
-        return idAventura;
+    public Aventura getAventura() {
+        return aventura;
     }
 
-    public void setIdAventura(Aventura idAventura) {
-        this.idAventura = idAventura;
+    public void setAventura(Aventura aventura) {
+        this.aventura = aventura;
     }
 
-    public Guia getIdGuia() {
-        return idGuia;
+    public Guia getGuia() {
+        return guia;
     }
 
-    public void setIdGuia(Guia idGuia) {
-        this.idGuia = idGuia;
+    public void setGuia(Guia guia) {
+        this.guia = guia;
     }
 
-    public Set<Reserva> getReservaSet() {
-        return reservaSet;
+    public Set<Reserva> getReservas() {
+        return reservas;
     }
 
-    public void setReservaSet(Set<Reserva> reservaSet) {
-        this.reservaSet = reservaSet;
+    public void setReservas(Set<Reserva> reservas) {
+        this.reservas = reservas;
     }
 
     @Override
@@ -140,5 +152,5 @@ public class Turno implements Serializable {
     public String toString() {
         return "Modelo.Turno[ idTurno=" + idTurno + " ]";
     }
-    
+
 }

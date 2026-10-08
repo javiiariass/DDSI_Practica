@@ -5,7 +5,6 @@
 package Modelo;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,10 +12,9 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -38,32 +36,40 @@ import java.util.Set;
 public class Cliente implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    
     @Id
     @Basic(optional = false)
     @Column(name = "idCliente")
     private String idCliente;
+    
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
+    
     @Basic(optional = false)
     @Column(name = "apellidos")
     private String apellidos;
+    
     @Column(name = "telefono")
     private String telefono;
+    
     @Basic(optional = false)
     @Column(name = "fechaNacimiento")
-    @Temporal(TemporalType.DATE)
-    private Date fechaNacimiento;
+    private LocalDate fechaNacimiento;
+    
     @Column(name = "email")
     private String email;
+    
     @Basic(optional = false)
     @Column(name = "idiomaPreferido")
     private String idiomaPreferido;
+    
     @Basic(optional = false)
     @Column(name = "categoria")
     private String categoria;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idCliente")
-    private Set<Reserva> reservaSet;
+    
+    @OneToMany(mappedBy = "cliente")
+    private Set<Reserva> reservas = new HashSet<Reserva>();
 
     public Cliente() {
     }
@@ -72,11 +78,26 @@ public class Cliente implements Serializable {
         this.idCliente = idCliente;
     }
 
-    public Cliente(String idCliente, String nombre, String apellidos, Date fechaNacimiento, String idiomaPreferido, String categoria) {
+    public Cliente(String idCliente, String nombre, String apellidos,
+            LocalDate fechaNacimiento, String idiomaPreferido, String categoria) {
         this.idCliente = idCliente;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.fechaNacimiento = fechaNacimiento;
+        this.idiomaPreferido = idiomaPreferido;
+        this.categoria = categoria;
+    }
+
+    public Cliente(String idCliente, String nombre, String apellidos,
+            String telefono, LocalDate fechaNacimiento, String email,
+            String idiomaPreferido, String categoria) {
+
+        this.idCliente = idCliente;
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.telefono = telefono;
+        this.fechaNacimiento = fechaNacimiento;
+        this.email = email;
         this.idiomaPreferido = idiomaPreferido;
         this.categoria = categoria;
     }
@@ -113,11 +134,11 @@ public class Cliente implements Serializable {
         this.telefono = telefono;
     }
 
-    public Date getFechaNacimiento() {
+    public LocalDate getFechaNacimiento() {
         return fechaNacimiento;
     }
 
-    public void setFechaNacimiento(Date fechaNacimiento) {
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
     }
 
@@ -145,12 +166,12 @@ public class Cliente implements Serializable {
         this.categoria = categoria;
     }
 
-    public Set<Reserva> getReservaSet() {
-        return reservaSet;
+    public Set<Reserva> getReservas() {
+        return reservas;
     }
 
-    public void setReservaSet(Set<Reserva> reservaSet) {
-        this.reservaSet = reservaSet;
+    public void setReservas(Set<Reserva> reservas) {
+        this.reservas = reservas;
     }
 
     @Override
@@ -177,5 +198,5 @@ public class Cliente implements Serializable {
     public String toString() {
         return "Modelo.Cliente[ idCliente=" + idCliente + " ]";
     }
-    
+
 }
