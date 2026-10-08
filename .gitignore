@@ -1,1 +1,4 @@
 /target/
+
+# Evitar subir usuario y contraseña hardcodeados
+src/main/resources/hibernate.cfg.xml
