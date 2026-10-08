@@ -13,11 +13,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  *
@@ -42,8 +40,7 @@ public class Reserva implements Serializable {
 
     @Basic(optional = false)
     @Column(name = "fechaReserva")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaReserva;
+    private LocalDate fechaReserva;
 
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
@@ -72,7 +69,7 @@ public class Reserva implements Serializable {
         this.idReserva = idReserva;
     }
 
-    public Reserva(String idReserva, Date fechaReserva, BigDecimal importe,
+    public Reserva(String idReserva, LocalDate fechaReserva, BigDecimal importe,
             String estado) {
         this.idReserva = idReserva;
         this.fechaReserva = fechaReserva;
@@ -80,7 +77,7 @@ public class Reserva implements Serializable {
         this.estado = estado;
     }
 
-    public Reserva(String idReserva, Date fechaReserva, BigDecimal importe,
+    public Reserva(String idReserva, LocalDate fechaReserva, BigDecimal importe,
             String estado, Short valoracion, Cliente cliente, Turno turno) {
         this.idReserva = idReserva;
         this.fechaReserva = fechaReserva;
@@ -99,11 +96,11 @@ public class Reserva implements Serializable {
         this.idReserva = idReserva;
     }
 
-    public Date getFechaReserva() {
+    public LocalDate getFechaReserva() {
         return fechaReserva;
     }
 
-    public void setFechaReserva(Date fechaReserva) {
+    public void setFechaReserva(LocalDate fechaReserva) {
         this.fechaReserva = fechaReserva;
     }
 

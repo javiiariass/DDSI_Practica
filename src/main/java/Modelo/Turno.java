@@ -15,7 +15,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,7 +41,7 @@ public class Turno implements Serializable {
     
     @Basic(optional = false)
     @Column(name = "fechaHora")
-    private LocalDate fechaHora;
+    private LocalDateTime fechaHora;
     
     @Basic(optional = false)
     @Column(name = "capacidad")
@@ -65,13 +65,13 @@ public class Turno implements Serializable {
         this.idTurno = idTurno;
     }
 
-    public Turno(String idTurno, LocalDate fechaHora, short capacidad) {
+    public Turno(String idTurno, LocalDateTime fechaHora, short capacidad) {
         this.idTurno = idTurno;
         this.fechaHora = fechaHora;
         this.capacidad = capacidad;
     }
 
-    public Turno(String idTurno, LocalDate fechaHora, short capacidad,
+    public Turno(String idTurno, LocalDateTime fechaHora, short capacidad,
             Aventura aventura, Guia guia) {
         this.idTurno = idTurno;
         this.fechaHora = fechaHora;
@@ -88,11 +88,11 @@ public class Turno implements Serializable {
         this.idTurno = idTurno;
     }
 
-    public LocalDate getFechaHora() {
+    public LocalDateTime getFechaHora() {
         return fechaHora;
     }
 
-    public void setFechaHora(LocalDate fechaHora) {
+    public void setFechaHora(LocalDateTime fechaHora) {
         this.fechaHora = fechaHora;
     }
 
