@@ -10,5 +10,11 @@
         <property name="hibernate.connection.password">contraseña</property>
         <property name="hibernate. show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
+        <!-- Entidades -->
+        <mapping class="Modelo.Cliente"/>
+        <mapping class="Modelo.Guia"/>
+        <mapping class="Modelo.Aventura"/>
+        <mapping class="Modelo.Turno"/>
+        <mapping class="Modelo.Reserva"/>
     </session-factory>
 </hibernate-configuration>
