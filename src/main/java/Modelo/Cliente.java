@@ -8,6 +8,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -23,6 +24,11 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "CLIENTE")
+@NamedNativeQuery(
+        name = "Cliente.findByIdiomaPreferidoNative",
+        query = "SELECT * FROM CLIENTE c WHERE c.idiomaPreferido = :idiomaPreferido",
+        resultClass = Cliente.class
+)
 @NamedQueries({
     @NamedQuery(name = "Cliente.findAll", query = "SELECT c FROM Cliente c"),
     @NamedQuery(name = "Cliente.findByIdCliente", query = "SELECT c FROM Cliente c WHERE c.idCliente = :idCliente"),
