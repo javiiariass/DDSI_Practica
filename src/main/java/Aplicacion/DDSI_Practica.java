@@ -395,6 +395,33 @@ public class DDSI_Practica {
                     case 13 -> {
                         System.out.print("Introduzca el email del guia: ");
                         String email = scanner.nextLine().trim();
+                        if (email.isEmpty()) {
+                            throw new IllegalArgumentException("Introduce un email");
+                        }
+
+                        Guia guia = sesion.createNamedQuery("Guia.findByEmail", Guia.class)
+                                .setParameter("email", email)
+                                .uniqueResult();
+
+                        if (guia == null) {
+                            System.out.println("No existe ningun guia con el email: " + email);
+                        } else if (guia.getTurnos().isEmpty()) {
+                            System.out.println("El guia " + guia.getNombre() + " " + guia.getApellidos()
+                                    + " no tiene turnos asignados.");
+                        } else {
+                            System.out.println("""
+                                       --------------------------------------
+                                       |      Turnos asignados al guia      |
+                                       --------------------------------------""");
+                            System.out.println("Guia: " + guia.getNombre() + " " + guia.getApellidos());
+                            for (Turno turno : guia.getTurnos()) {
+                                System.out.println("*******************");
+                                System.out.println("Turno: " + turno.getIdTurno());
+                                System.out.println("├── aventura: " + turno.getAventura().getNombre());
+                                System.out.println("├── fecha y hora: " + turno.getFechaHora());
+                                System.out.println("└── capacidad: " + turno.getCapacidad());
+                            }
+                        }
                     }
                     case 0 -> {
                     }
