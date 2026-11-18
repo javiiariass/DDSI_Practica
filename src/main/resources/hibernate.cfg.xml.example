@@ -8,7 +8,7 @@
         <property name="hibernate.connection.url">jdbc:mariadb://172.18.1.241:3306/BaseDeDatos*</property>
         <property name="hibernate.connection.username">usuario</property>
         <property name="hibernate.connection.password">contraseña</property>
-        <property name="hibernate. show_sql">true</property>
+        <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
         <!-- Entidades -->
         <mapping class="Modelo.Cliente"/>
