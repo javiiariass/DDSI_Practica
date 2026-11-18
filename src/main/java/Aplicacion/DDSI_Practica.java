@@ -12,6 +12,7 @@ import Modelo.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -420,6 +421,48 @@ public class DDSI_Practica {
                                 System.out.println("├── aventura: " + turno.getAventura().getNombre());
                                 System.out.println("├── fecha y hora: " + turno.getFechaHora());
                                 System.out.println("└── capacidad: " + turno.getCapacidad());
+                            }
+                        }
+                    }
+                    case 14 -> {
+                        System.out.print("Introduzca el email del cliente: ");
+                        String email = scanner.nextLine().trim();
+                        if (email.isEmpty()) {
+                            throw new IllegalArgumentException("Introduce un email");
+                        }
+
+                        Cliente cliente = sesion.createNamedQuery("Cliente.findByEmail", Cliente.class)
+                                .setParameter("email", email)
+                                .uniqueResult();
+
+                        if (cliente == null) {
+                            System.out.println("No existe ningun cliente con el email: " + email);
+                        } else {
+                            Set<Aventura> aventuras = new LinkedHashSet<>();
+                            for (Reserva reserva : cliente.getReservas()) {
+                                if (!"CANCELADA".equals(reserva.getEstado())) {
+                                    aventuras.add(reserva.getTurno().getAventura());
+                                }
+                            }
+
+                            if (aventuras.isEmpty()) {
+                                System.out.println("El cliente " + cliente.getNombre() + " " + cliente.getApellidos()
+                                        + " no tiene reservas activas (no canceladas).");
+                            } else {
+                                System.out.println("""
+                                           --------------------------------------
+                                           |   Aventuras reservadas (activas)   |
+                                           --------------------------------------""");
+                                for (Aventura aventura : aventuras) {
+                                    System.out.println("*******************");
+                                    System.out.println(aventura.getIdAventura() + ": " + aventura.getNombre());
+                                    System.out.println("├── descripcion: " + (aventura.getDescripcion() != null ? aventura.getDescripcion() : "Sin descripcion"));
+                                    System.out.println("├── tipo: " + aventura.getTipo());
+                                    System.out.println("├── dificultad: " + aventura.getDificultad());
+                                    System.out.println("├── duracion: " + aventura.getDuracion());
+                                    System.out.println("├── precio: " + aventura.getPrecio());
+                                    System.out.println("└── edad minima: " + aventura.getEdadMinima());
+                                }
                             }
                         }
                     }
