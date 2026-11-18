@@ -376,6 +376,21 @@ public class DDSI_Practica {
                     case 12 -> {
                         System.out.print("Introduzca el email del cliente a eliminar: ");
                         String email = scanner.nextLine().trim();
+                        if (email.isEmpty())
+                            throw new IllegalArgumentException("Introduce un email");
+
+                        Cliente cliente = sesion.createNamedQuery("Cliente.findByEmail", Cliente.class)
+                                .setParameter("email", email)
+                                .uniqueResult();
+
+                        if (cliente == null) {
+                            System.out.println("No existe ningun cliente con el email: " + email);
+                        } else {
+                            sesion.remove(cliente);
+                            sesion.flush();
+                            System.out.println("Cliente eliminado correctamente: " + cliente.getIdCliente());
+                        }
+
                     }
                     case 13 -> {
                         System.out.print("Introduzca el email del guia: ");
@@ -390,6 +405,11 @@ public class DDSI_Practica {
                 // commiteamos la transaccion
                 tr.commit();
 
+            } catch (org.hibernate.exception.ConstraintViolationException e) {
+                if (tr != null && tr.isActive()) {
+                    tr.rollback();
+                }
+                System.out.println("No se puede completar la operacion por restriccion de integridad (clave ajena/unica).");
             } catch (Exception e) {
                 if (tr != null && tr.isActive()) {
                     //rollback en caso de error o consulta no completa
