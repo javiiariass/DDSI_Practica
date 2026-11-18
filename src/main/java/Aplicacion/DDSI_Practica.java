@@ -9,8 +9,12 @@ package Aplicacion;
  */
 import Config.HibernateUtil;
 import Modelo.*;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -19,6 +23,59 @@ import org.hibernate.query.Query;
 public class DDSI_Practica {
 
     static Scanner scanner = new Scanner(System.in);
+
+    //TODO refactor -> Crear clase aplicar RN. Regla R1
+    public static void comprobarFechaNacimientoValida(LocalDate fechaNacimiento) 
+                throws IllegalArgumentException{
+        if(fechaNacimiento == null || !fechaNacimiento.isBefore(LocalDate.now()))
+            throw new IllegalArgumentException("La fecha de nacimiento debe ser anterior a hoy (R1).");
+    } 
+
+    //TODO refactor -> Crear clase aplicar RN. Regla R2
+    public static void  comprobarCategoriaValida(LocalDate fechaNacimiento,String categoria) 
+                throws IllegalArgumentException{
+        int edadCalculada = Period.between(fechaNacimiento, LocalDate.now()).getYears();
+        switch(categoria){
+            case "INFANTIL" -> {
+                if(edadCalculada > 14)
+                    throw new IllegalArgumentException("La categoría " + categoria + " exige tener máximo 14 años (R2)");
+                
+            }
+            case "GENERAL", "ESTUDIANTE" -> {
+                
+            }
+            case "SENIOR" -> {
+                if(edadCalculada < 65)
+                    throw new IllegalArgumentException("La categoría " + categoria + " exige tener al menos 65 años (R2)");
+                
+            }
+            default -> 
+                throw new IllegalArgumentException("Categoría no válida: " + categoria);
+        }
+    }
+
+    //TODO refactor -> Crear clase aplicar RN. Regla R13
+    public static String siguienteId(String prefijo, int numDigitos, String ultimoId) {
+        int siguiente = (ultimoId == null)
+                ? 1
+                : Integer.parseInt(ultimoId.substring(prefijo.length())) + 1;
+        return String.format("%s%0" + numDigitos + "d", prefijo, siguiente);
+    }
+
+    //TODO refactor -> Crear clase aplicar RN. Restricción UNIQUE email en CLIENTE
+    public static void comprobarEmailClienteUnico(Session sesion, String email)
+            throws IllegalArgumentException {
+        if (email != null) {
+            Long conEmail = sesion.createQuery(
+                    "SELECT COUNT(c) FROM Cliente c WHERE LOWER(c.email) = LOWER(:email)",
+                    Long.class)
+                    .setParameter("email", email)
+                    .uniqueResult();
+            if (conEmail != null && conEmail > 0) {
+                throw new IllegalArgumentException("Ya existe un cliente con el email: " + email);
+            }
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -274,6 +331,56 @@ public class DDSI_Practica {
                             System.out.println("└── categoría: " + cliente.getCategoria());
                         }
                     }
+                    case 11 -> {
+                        System.out.print("Introduzca nombre: ");
+                        String nombre = scanner.nextLine().trim();
+                        System.out.print("Introduzca apellidos: ");
+                        String apellidos = scanner.nextLine().trim();
+                        System.out.print("Introduzca telefono (opcional, pulse Enter para omitir): ");
+                        String telefonoInput = scanner.nextLine().trim();
+                        String telefono = telefonoInput.isEmpty() ? null : telefonoInput;
+                        System.out.print("Introduzca fecha de nacimiento (dd/MM/yyyy): ");
+                        LocalDate fechaNacimiento = LocalDate.parse(
+                                scanner.nextLine().trim(),
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                        System.out.print("Introduzca email (opcional, pulse Enter para omitir): ");
+                        String emailInput = scanner.nextLine().trim();
+                        String email = emailInput.isEmpty() ? null : emailInput;
+                        System.out.print("Introduzca idioma preferido (ES, EN, FR, DE): ");
+                        String idiomaPreferido = scanner.nextLine().trim().toUpperCase();
+                        System.out.print("Introduzca categoria (GENERAL, INFANTIL, ESTUDIANTE, SENIOR): ");
+                        String categoria = scanner.nextLine().trim().toUpperCase();
+
+                        if (nombre.isEmpty() || apellidos.isEmpty()) {
+                            throw new IllegalArgumentException("El nombre y los apellidos son obligatorios.");
+                        }
+                        if (!Set.of("ES", "EN", "FR", "DE").contains(idiomaPreferido)) {
+                            throw new IllegalArgumentException("Idioma preferido no valido: " + idiomaPreferido);
+                        }
+
+                        comprobarFechaNacimientoValida(fechaNacimiento);
+                        comprobarCategoriaValida(fechaNacimiento, categoria);
+                        comprobarEmailClienteUnico(sesion, email);
+
+                        String ultimoId = sesion.createQuery(
+                                "SELECT MAX(c.idCliente) FROM Cliente c", String.class)
+                                .uniqueResult();
+                        String idCliente = siguienteId("CL", 3, ultimoId);
+
+                        Cliente nuevoCliente = new Cliente(
+                                idCliente, nombre, apellidos, telefono,
+                                fechaNacimiento, email, idiomaPreferido, categoria);
+                        sesion.persist(nuevoCliente);
+                        System.out.println("Cliente insertado correctamente con ID: " + idCliente);
+                    }
+                    case 12 -> {
+                        System.out.print("Introduzca el email del cliente a eliminar: ");
+                        String email = scanner.nextLine().trim();
+                    }
+                    case 13 -> {
+                        System.out.print("Introduzca el email del guia: ");
+                        String email = scanner.nextLine().trim();
+                    }
                     case 0 -> {
                     }
                     default ->
@@ -320,11 +427,21 @@ public class DDSI_Practica {
             System.out.println("8. Turnos de una aventura por capacidad minima");
             System.out.println("9. Informacion de reservas por estado (HQL)");
             System.out.println("10. Informacion de clientes por idioma preferido (SQL nativo)");
+            System.out.println("11. Insercion de cliente");
+            System.out.println("12. Borrado de cliente");
+            System.out.println("13. Turnos asignados a un guia");
+            System.out.println("14. Aventuras reservadas por un cliente");
+            System.out.println("15. Clientes con reserva en una aventura");
+            System.out.println("16. Reserva de un cliente en un turno");
+            System.out.println("17. Cancelacion de una reserva");
+            System.out.println("18. Agenda de un guia");
+            System.out.println("19. Reservas e importes de un cliente");
+            System.out.println("20. Clientes mayores de una edad");
             System.out.println("0. Salir");
             System.out.print("Elige una opcion: ");
             opcion = scanner.nextInt();
             scanner.nextLine();// limpiar '\n' de buffer
-        } while (opcion < 0 || opcion > 10);
+        } while (opcion < 0 || opcion > 20);
 
         return opcion;
     }
