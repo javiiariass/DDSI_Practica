@@ -12,6 +12,7 @@ import Modelo.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -465,6 +466,60 @@ public class DDSI_Practica {
                                 }
                             }
                         }
+                    }
+                    case 15 -> {
+                        System.out.print("Introduzca el nombre de la aventura: ");
+                        String nombreAventura = scanner.nextLine().trim();
+                        if (nombreAventura.isEmpty()) {
+                            throw new IllegalArgumentException("Introduce el nombre de la aventura");
+                        }
+
+                        
+                        // como nombre de aventura no es único, puede haber varias aventuras con mismo nombre
+                        List<Aventura> aventuras = sesion.createNamedQuery("Aventura.findByNombre", Aventura.class)
+                                .setParameter("nombre", nombreAventura).getResultList();
+                        
+                        
+                        // por cada aventura, vemos los clientes de cada uno de sus turnos
+                        if (aventuras.isEmpty()) {
+                            System.out.println("No existe ninguna aventura con el nombre: " + nombreAventura);
+                        } else {
+                            for (Aventura aventura : aventuras) {
+                                
+                                // linkedHashSet para evitar duplicados dentro de cada aventura
+                                LinkedHashSet<Cliente> listaClientes = new LinkedHashSet<>();
+                                for (Turno turnoActual : aventura.getTurnos()) {
+                                    for (Reserva reservaActual : turnoActual.getReservas()) {
+                                        if (!"CANCELADA".equals(reservaActual.getEstado())) // getEstado != "CANCELADA"
+                                            listaClientes.add(reservaActual.getCliente());
+                                        
+                                    }
+                                }
+
+                                System.out.println("""
+                                           --------------------------------------
+                                           |    Clientes con reserva activa     |
+                                           --------------------------------------""");
+                                System.out.println("Aventura: " + aventura.getIdAventura() + " - " + aventura.getNombre());
+
+                                if (listaClientes.isEmpty()) {
+                                    System.out.println("No hay clientes con reservas no canceladas en esta aventura.");
+                                } else {
+                                    for (Cliente cliente : listaClientes) {
+                                        System.out.println("*******************");
+                                        System.out.println(cliente.getIdCliente() + ": " + cliente.getNombre() + " " + cliente.getApellidos());
+                                        System.out.println("├── telefono: " + (cliente.getTelefono() != null ? cliente.getTelefono() : "Sin telefono"));
+                                        System.out.println("├── fecha nacimiento: " + cliente.getFechaNacimiento());
+                                        System.out.println("├── email: " + (cliente.getEmail() != null ? cliente.getEmail() : "Sin email"));
+                                        System.out.println("├── idioma preferido: " + cliente.getIdiomaPreferido());
+                                        System.out.println("└── categoria: " + cliente.getCategoria());
+                                    }
+                                }
+                            }
+                        }
+                        
+
+                        
                     }
                     case 0 -> {
                     }
