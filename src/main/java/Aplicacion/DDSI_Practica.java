@@ -27,31 +27,34 @@ public class DDSI_Practica {
     static Scanner scanner = new Scanner(System.in);
 
     //TODO refactor -> Crear clase aplicar RN. Regla R1
-    public static void comprobarFechaNacimientoValida(LocalDate fechaNacimiento) 
-                throws IllegalArgumentException{
-        if(fechaNacimiento == null || !fechaNacimiento.isBefore(LocalDate.now()))
+    public static void comprobarFechaNacimientoValida(LocalDate fechaNacimiento)
+            throws IllegalArgumentException {
+        if (fechaNacimiento == null || !fechaNacimiento.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de nacimiento debe ser anterior a hoy (R1).");
-    } 
+        }
+    }
 
     //TODO refactor -> Crear clase aplicar RN. Regla R2
-    public static void  comprobarCategoriaValida(LocalDate fechaNacimiento,String categoria) 
-                throws IllegalArgumentException{
+    public static void comprobarCategoriaValida(LocalDate fechaNacimiento, String categoria)
+            throws IllegalArgumentException {
         int edadCalculada = Period.between(fechaNacimiento, LocalDate.now()).getYears();
-        switch(categoria){
+        switch (categoria) {
             case "INFANTIL" -> {
-                if(edadCalculada > 14)
+                if (edadCalculada > 14) {
                     throw new IllegalArgumentException("La categoría " + categoria + " exige tener máximo 14 años (R2)");
-                
+                }
+
             }
             case "GENERAL", "ESTUDIANTE" -> {
-                
+
             }
             case "SENIOR" -> {
-                if(edadCalculada < 65)
+                if (edadCalculada < 65) {
                     throw new IllegalArgumentException("La categoría " + categoria + " exige tener al menos 65 años (R2)");
-                
+                }
+
             }
-            default -> 
+            default ->
                 throw new IllegalArgumentException("Categoría no válida: " + categoria);
         }
     }
@@ -293,7 +296,7 @@ public class DDSI_Practica {
                         Query<Reserva> consulta = sesion.createNamedQuery("Reserva.findByEstado", Reserva.class)
                                 .setParameter("estado", estadoReserva);
                         List<Reserva> reservas = consulta.getResultList();
-                        
+
                         System.out.println("""
                                    --------------------------------------
                                    |        Listado de Reservas         |
@@ -378,8 +381,9 @@ public class DDSI_Practica {
                     case 12 -> {
                         System.out.print("Introduzca el email del cliente a eliminar: ");
                         String email = scanner.nextLine().trim();
-                        if (email.isEmpty())
+                        if (email.isEmpty()) {
                             throw new IllegalArgumentException("Introduce un email");
+                        }
 
                         Cliente cliente = sesion.createNamedQuery("Cliente.findByEmail", Cliente.class)
                                 .setParameter("email", email)
@@ -474,25 +478,25 @@ public class DDSI_Practica {
                             throw new IllegalArgumentException("Introduce el nombre de la aventura");
                         }
 
-                        
                         // como nombre de aventura no es único, puede haber varias aventuras con mismo nombre
                         List<Aventura> aventuras = sesion.createNamedQuery("Aventura.findByNombre", Aventura.class)
                                 .setParameter("nombre", nombreAventura).getResultList();
-                        
-                        
+
                         // por cada aventura, vemos los clientes de cada uno de sus turnos
                         if (aventuras.isEmpty()) {
                             System.out.println("No existe ninguna aventura con el nombre: " + nombreAventura);
                         } else {
                             for (Aventura aventura : aventuras) {
-                                
+
                                 // linkedHashSet para evitar duplicados dentro de cada aventura
                                 LinkedHashSet<Cliente> listaClientes = new LinkedHashSet<>();
                                 for (Turno turnoActual : aventura.getTurnos()) {
                                     for (Reserva reservaActual : turnoActual.getReservas()) {
                                         if (!"CANCELADA".equals(reservaActual.getEstado())) // getEstado != "CANCELADA"
+                                        {
                                             listaClientes.add(reservaActual.getCliente());
-                                        
+                                        }
+
                                     }
                                 }
 
@@ -517,9 +521,7 @@ public class DDSI_Practica {
                                 }
                             }
                         }
-                        
 
-                        
                     }
                     case 0 -> {
                     }
