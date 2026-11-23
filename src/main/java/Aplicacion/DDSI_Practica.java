@@ -720,6 +720,44 @@ public class DDSI_Practica {
                         }
 
                     }
+                    case 18 -> {
+                        System.out.print("Introduzca el email del guia: ");
+                        String email = scanner.nextLine().trim();
+                        if (email.isEmpty()) {
+                            throw new IllegalArgumentException("Introduce un email");
+                        }
+
+                        Query<Object[]> consulta = sesion.createQuery(
+                                "SELECT t.aventura.nombre, t.fechaHora, t.aventura.duracion "
+                                + "FROM Turno t "
+                                + "WHERE t.guia.email = :email "
+                                + "ORDER BY t.fechaHora ASC",
+                                Object[].class)
+                                .setParameter("email", email);
+
+                        List<Object[]> agenda = consulta.getResultList();
+
+                        if (agenda.isEmpty()) {
+                            System.out.println("No existen turnos asignados para el guia con email: " + email);
+                        } else {
+                            System.out.println("""
+                                    --------------------------------------
+                                    |          Agenda del guia           |
+                                    --------------------------------------""");
+                            System.out.println("Guia: " + email);
+                            for (Object[] fila : agenda) {
+                                String nombreAventura = (String) fila[0];
+                                LocalDateTime fechaHoraInicio = (LocalDateTime) fila[1];
+                                short duracion = (Short) fila[2];
+                                LocalDateTime fechaHoraFin = fechaHoraInicio.plusMinutes(duracion);
+
+                                System.out.println("*******************");
+                                System.out.println("Aventura: " + nombreAventura);
+                                System.out.println("├── fecha y hora de inicio: " + fechaHoraInicio);
+                                System.out.println("└── hora de finalizacion: " + fechaHoraFin.toLocalTime());
+                            }
+                        }
+                    }
                     case 0 -> {
                     }
                     default ->
