@@ -658,6 +658,68 @@ public class DDSI_Practica {
                         System.out.println("├── importe: " + reservaCliente.getImporte());
                         System.out.println("└── estado: " + reservaCliente.getEstado());
                     }
+                    case 17 -> {
+                        System.out.print("Introduzca el identificador del cliente (ej. CL001): ");
+                        String idCliente = scanner.nextLine().trim().toUpperCase();
+                        System.out.print("Introduzca el identificador del turno (ej. T0001): ");
+                        String idTurno = scanner.nextLine().trim().toUpperCase();
+                        if (idCliente.isEmpty() || idTurno.isEmpty()) {
+                            throw new IllegalArgumentException(
+                                    "El identificador de cliente y de turno son obligatorios.");
+                        }
+
+                        Cliente clienteBuscado = sesion.find(Cliente.class, idCliente);
+                        Turno turnoBuscado = sesion.find(Turno.class, idTurno);
+
+                        if (clienteBuscado == null) {
+                            throw new IllegalArgumentException(
+                                    "El cliente con id " + idCliente + " no se encuentra en la base de datos");
+                        }
+                        if (turnoBuscado == null) {
+                            throw new IllegalArgumentException(
+                                    "El turno con id " + idTurno + " no se encuentra en la base de datos");
+                        }
+
+                        // comprobar si el cliente tiene reserva
+                        Reserva reservaCliente = null;
+                        for (Reserva reservaActual : turnoBuscado.getReservas()) {
+                            if (reservaActual.getCliente().equals(clienteBuscado)) {
+                                reservaCliente = reservaActual;
+                                break;
+                            }
+                        }
+
+                        if (reservaCliente == null) {
+                            throw new IllegalStateException("El cliente " + idCliente
+                                    + " no tiene una reserva en el turno " + turnoBuscado.getIdTurno() + ".");
+                        }
+
+                        switch (reservaCliente.getEstado()) {
+                            case "CONFIRMADA", "PENDIENTE" -> {
+                                String estadoAnterior = reservaCliente.getEstado();
+                                reservaCliente.setEstado("CANCELADA");
+
+                                System.out.println("Reserva cancelada correctamente:");
+                                System.out.println("Reserva: " + reservaCliente.getIdReserva());
+                                System.out.println("├── cliente: " + clienteBuscado.getIdCliente() + " - "
+                                        + clienteBuscado.getNombre() + " " + clienteBuscado.getApellidos());
+                                System.out.println("├── turno: " + turnoBuscado.getIdTurno() + " ("
+                                        + turnoBuscado.getAventura().getNombre() + " - " + turnoBuscado.getFechaHora()
+                                        + ")");
+                                System.out.println("├── estado anterior: " + estadoAnterior);
+                                System.out.println("└── estado actual: " + reservaCliente.getEstado());
+                            }
+                            case "CANCELADA" -> {
+                                System.out.println("El cliente " + idCliente + " ya tenía cancelada la reserva "
+                                        + reservaCliente.getIdReserva() + " en el turno " + idTurno);
+                            }
+                            default -> {
+                                throw new IllegalStateException(
+                                        "Estado de reserva no válido: " + reservaCliente.getEstado());
+                            }
+                        }
+
+                    }
                     case 0 -> {
                     }
                     default ->
