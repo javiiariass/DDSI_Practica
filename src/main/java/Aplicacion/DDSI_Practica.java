@@ -798,6 +798,47 @@ public class DDSI_Practica {
                             }
                         }
                     }
+                    case 20 -> {
+                        System.out.print("Introduzca una edad: ");
+                        int edad = Integer.parseInt(scanner.nextLine().trim());
+                        if (edad < 0) {
+                            throw new IllegalArgumentException("La edad no puede ser negativa.");
+                        }
+
+                        LocalDate hoy = LocalDate.now();
+                        LocalDate fechaLimite = hoy.minusYears(edad + 1L);
+
+                        Query<Cliente> consulta = sesion.createQuery(
+                                "SELECT c FROM Cliente c WHERE c.fechaNacimiento <= :fechaLimite",
+                                Cliente.class)
+                                .setParameter("fechaLimite", fechaLimite);
+
+                        List<Cliente> clientes = consulta.getResultList();
+
+                        if (clientes.isEmpty()) {
+                            System.out.println("No hay ningun cliente mayor de " + edad + " años.");
+                        } else {
+                            System.out.println("""
+                                    --------------------------------------
+                                    |     Clientes mayores de edad       |
+                                    --------------------------------------""");
+                            System.out.println("Clientes con mas de " + edad + " años:");
+                            for (Cliente cliente : clientes) {
+                                int edadCliente = Period.between(cliente.getFechaNacimiento(), hoy).getYears();
+                                System.out.println("*******************");
+                                System.out.println(cliente.getIdCliente() + ": " + cliente.getNombre() + " "
+                                        + cliente.getApellidos());
+                                System.out.println("├── telefono: "
+                                        + (cliente.getTelefono() != null ? cliente.getTelefono() : "Sin telefono"));
+                                System.out.println("├── fecha nacimiento: " + cliente.getFechaNacimiento()
+                                        + " (" + edadCliente + " años)");
+                                System.out.println("├── email: "
+                                        + (cliente.getEmail() != null ? cliente.getEmail() : "Sin email"));
+                                System.out.println("├── idioma preferido: " + cliente.getIdiomaPreferido());
+                                System.out.println("└── categoria: " + cliente.getCategoria());
+                            }
+                        }
+                    }
                     case 0 -> {
                     }
                     default ->
