@@ -758,6 +758,46 @@ public class DDSI_Practica {
                             }
                         }
                     }
+                    case 19 -> {
+                        System.out.print("Introduzca el identificador del cliente (ej. CL001): ");
+                        String idCliente = scanner.nextLine().trim().toUpperCase();
+                        if (idCliente.isEmpty()) {
+                            throw new IllegalArgumentException("El identificador de cliente es obligatorio.");
+                        }
+
+                        Cliente clienteBuscado = sesion.find(Cliente.class, idCliente);
+
+                        if (clienteBuscado == null) {
+                            System.out.println("No existe ningun cliente con el id: " + idCliente);
+                        } else {
+                            List<Reserva> reservasActivas = new ArrayList<>();
+                            for (Reserva reserva : clienteBuscado.getReservas()) {
+                                if (!"CANCELADA".equals(reserva.getEstado())) {
+                                    reservasActivas.add(reserva);
+                                }
+                            }
+
+                            if (reservasActivas.isEmpty()) {
+                                System.out.println("El cliente " + clienteBuscado.getNombre() + " "
+                                        + clienteBuscado.getApellidos()
+                                        + " no tiene reservas activas (no canceladas).");
+                            } else {
+                                System.out.println("""
+                                        --------------------------------------
+                                        |   Reservas e importes del cliente  |
+                                        --------------------------------------""");
+                                System.out.println("Cliente: " + clienteBuscado.getIdCliente() + " - "
+                                        + clienteBuscado.getNombre() + " " + clienteBuscado.getApellidos());
+                                for (Reserva reserva : reservasActivas) {
+                                    System.out.println("*******************");
+                                    System.out.println("Reserva: " + reserva.getIdReserva());
+                                    System.out.println("├── aventura: " + reserva.getTurno().getAventura().getNombre());
+                                    System.out.println("├── fecha y hora del turno: " + reserva.getTurno().getFechaHora());
+                                    System.out.println("└── importe: " + reserva.getImporte());
+                                }
+                            }
+                        }
+                    }
                     case 0 -> {
                     }
                     default ->
