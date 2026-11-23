@@ -7,8 +7,6 @@ package Aplicacion;
  *
  * @author javi
  */
-import Config.HibernateUtil;
-import Modelo.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -17,31 +15,40 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import Config.HibernateUtil;
+import Modelo.Aventura;
+import Modelo.Cliente;
+import Modelo.Guia;
+import Modelo.Reserva;
+import Modelo.Turno;
+
 public class DDSI_Practica {
 
     static Scanner scanner = new Scanner(System.in);
 
-    //TODO refactor -> Crear clase aplicar RN. Regla R1
-    public static void comprobarFechaNacimientoValida(LocalDate fechaNacimiento)
+    // TODO refactor -> Crear clase aplicar RN. Regla R1
+    static void comprobarFechaNacimientoValida(LocalDate fechaNacimiento)
             throws IllegalArgumentException {
         if (fechaNacimiento == null || !fechaNacimiento.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de nacimiento debe ser anterior a hoy (R1).");
         }
     }
 
-    //TODO refactor -> Crear clase aplicar RN. Regla R2
-    public static void comprobarCategoriaValida(LocalDate fechaNacimiento, String categoria)
+    // TODO refactor -> Crear clase aplicar RN. Regla R2
+    static void comprobarCategoriaValida(LocalDate fechaNacimiento, String categoria)
             throws IllegalArgumentException {
         int edadCalculada = Period.between(fechaNacimiento, LocalDate.now()).getYears();
         switch (categoria) {
             case "INFANTIL" -> {
                 if (edadCalculada > 14) {
-                    throw new IllegalArgumentException("La categoría " + categoria + " exige tener máximo 14 años (R2)");
+                    throw new IllegalArgumentException(
+                            "La categoría " + categoria + " exige tener máximo 14 años (R2)");
                 }
 
             }
@@ -50,7 +57,8 @@ public class DDSI_Practica {
             }
             case "SENIOR" -> {
                 if (edadCalculada < 65) {
-                    throw new IllegalArgumentException("La categoría " + categoria + " exige tener al menos 65 años (R2)");
+                    throw new IllegalArgumentException(
+                            "La categoría " + categoria + " exige tener al menos 65 años (R2)");
                 }
 
             }
@@ -59,17 +67,17 @@ public class DDSI_Practica {
         }
     }
 
-    //TODO refactor -> Crear clase aplicar RN. Regla R13
-    public static String siguienteId(String prefijo, int numDigitos, String ultimoId) {
+    // TODO refactor -> Crear clase aplicar RN. Regla R13
+    static String siguienteId(String prefijo, int numDigitos, String ultimoId) {
         int siguiente = (ultimoId == null)
                 ? 1
                 : Integer.parseInt(ultimoId.substring(prefijo.length())) + 1;
         return String.format("%s%0" + numDigitos + "d", prefijo, siguiente);
     }
 
-    //TODO refactor -> Crear clase aplicar RN. Restricción UNIQUE email en CLIENTE
-    public static void comprobarEmailClienteUnico(Session sesion, String email)
-            throws IllegalArgumentException {
+    // TODO refactor -> Crear clase aplicar RN. Restricción UNIQUE email en CLIENTE
+    static void comprobarEmailClienteUnico(Session sesion, String email)
+            throws IllegalStateException {
         if (email != null) {
             Long conEmail = sesion.createQuery(
                     "SELECT COUNT(c) FROM Cliente c WHERE LOWER(c.email) = LOWER(:email)",
@@ -77,14 +85,14 @@ public class DDSI_Practica {
                     .setParameter("email", email)
                     .uniqueResult();
             if (conEmail != null && conEmail > 0) {
-                throw new IllegalArgumentException("Ya existe un cliente con el email: " + email);
+                throw new IllegalStateException("Ya existe un cliente con el email: " + email);
             }
         }
     }
 
     public static void main(String[] args) {
 
-        // obtenemos fabrica 
+        // obtenemos fabrica
         SessionFactory sessionFactory;
         try {
             // Se obtiene la SessionFactory definida en HibernateUtil
@@ -121,10 +129,10 @@ public class DDSI_Practica {
                         Query<Guia> consulta = sesion.createQuery(
                                 "FROM Guia g", Guia.class);
                         System.out.println("""
-                                   --------------------------------------
-                                   |         Listado de guias           |
-                                   --------------------------------------
-                                   """);
+                                --------------------------------------
+                                |         Listado de guias           |
+                                --------------------------------------
+                                """);
                         List<Guia> guias = consulta.getResultList();
                         for (Guia guia : guias) {
                             System.out.println("*******************");
@@ -139,10 +147,10 @@ public class DDSI_Practica {
                         Query<Guia> consulta = sesion.createNativeQuery(
                                 "SELECT * FROM GUIA g", Guia.class);
                         System.out.println("""
-                                   --------------------------------------
-                                   |         Listado de guias           |
-                                   --------------------------------------
-                                   """);
+                                --------------------------------------
+                                |         Listado de guias           |
+                                --------------------------------------
+                                """);
                         List<Guia> guias = consulta.getResultList();
                         for (Guia guia : guias) {
                             System.out.println("*******************");
@@ -156,10 +164,10 @@ public class DDSI_Practica {
                         Query<Guia> consulta = sesion.createNamedQuery(
                                 "Guia.findAll", Guia.class);
                         System.out.println("""
-                                   --------------------------------------
-                                   |         Listado de guias           |
-                                   --------------------------------------
-                                   """);
+                                --------------------------------------
+                                |         Listado de guias           |
+                                --------------------------------------
+                                """);
                         List<Guia> guias = consulta.getResultList();
                         for (Guia guia : guias) {
                             System.out.println("*******************");
@@ -175,16 +183,16 @@ public class DDSI_Practica {
                         Query<Object[]> consulta = sesion.createNativeQuery(
                                 "select g.nombre, g.telefono FROM GUIA g", Object[].class);
                         System.out.println("""
-                                   --------------------------------------
-                                   |       Listado nombres / tlf         |
-                                   --------------------------------------
-                                   """);
+                                --------------------------------------
+                                |       Listado nombres / tlf         |
+                                --------------------------------------
+                                """);
                         List<Object[]> guias = consulta.getResultList();
 
                         for (Object[] guia : guias) {
                             System.out.println("*******************");
                             System.out.println(guia[0] + ": " + guia[1]);
-//                            System.out.println("└── telefono: " + guia[1]);
+                            // System.out.println("└── telefono: " + guia[1]);
                         }
                     }
                     case 5 -> {
@@ -197,10 +205,10 @@ public class DDSI_Practica {
                                 Object[].class).setParameter("tipo", tipoAventura);
 
                         System.out.println("""
-                                   --------------------------------------
-                                   |   Listado aventuras / dificultad   |
-                                   --------------------------------------
-                                   """);
+                                --------------------------------------
+                                |   Listado aventuras / dificultad   |
+                                --------------------------------------
+                                """);
                         List<Object[]> guias = consulta.getResultList();
 
                         if (guias.isEmpty()) {
@@ -223,10 +231,10 @@ public class DDSI_Practica {
                                 .setParameter("telefono", numTel);
 
                         System.out.println("""
-                                   --------------------------------------
-                                   |         Listado de guias           |
-                                   --------------------------------------
-                                   """);
+                                --------------------------------------
+                                |         Listado de guias           |
+                                --------------------------------------
+                                """);
                         List<Guia> guias = consulta.getResultList();
                         System.out.println("*******************");
                         for (Guia guia : guias) {
@@ -243,10 +251,10 @@ public class DDSI_Practica {
                                 .setParameter("nombre", nombreAventura);
 
                         System.out.println("""
-                                   --------------------------------------
-                                   |        Listado de aventuras        |
-                                   --------------------------------------
-                                   """);
+                                --------------------------------------
+                                |        Listado de aventuras        |
+                                --------------------------------------
+                                """);
                         List<Aventura> aventuras = consulta.getResultList();
 
                         for (Aventura aventura : aventuras) {
@@ -271,22 +279,24 @@ public class DDSI_Practica {
                                 "SELECT * "
                                 + "FROM TURNO t "
                                 + "WHERE t.idAventura = :idAventura "
-                                + "AND t.capacidad >= :capacidadMinima", Turno.class)
+                                + "AND t.capacidad >= :capacidadMinima",
+                                Turno.class)
                                 .setParameter("capacidadMinima", numCap)
                                 .setParameter("idAventura", idAventura);
 
                         List<Turno> turnos = consulta.getResultList();
                         System.out.println("""
-                                   --------------------------------------
-                                   |         Listado de Turnos          |
-                                   --------------------------------------""");
+                                --------------------------------------
+                                |         Listado de Turnos          |
+                                --------------------------------------""");
                         System.out.println("Aventura: " + idAventura);
                         for (Turno turnoActual : turnos) {
                             System.out.println("*******************");
                             System.out.println("Turno: " + turnoActual.getIdTurno());
                             System.out.println("├── fecha y hora: " + turnoActual.getFechaHora());
                             System.out.println("├── capacidad: " + turnoActual.getCapacidad());
-                            System.out.println("└── guía: " + turnoActual.getGuia().getNombre() + " " + turnoActual.getGuia().getApellidos());
+                            System.out.println("└── guía: " + turnoActual.getGuia().getNombre() + " "
+                                    + turnoActual.getGuia().getApellidos());
                         }
                     }
                     case 9 -> {
@@ -298,9 +308,9 @@ public class DDSI_Practica {
                         List<Reserva> reservas = consulta.getResultList();
 
                         System.out.println("""
-                                   --------------------------------------
-                                   |        Listado de Reservas         |
-                                   --------------------------------------""");
+                                --------------------------------------
+                                |        Listado de Reservas         |
+                                --------------------------------------""");
 
                         for (Reserva reserva : reservas) {
                             System.out.println("*******************");
@@ -308,8 +318,10 @@ public class DDSI_Practica {
                             System.out.println("├── fecha: " + reserva.getFechaReserva());
                             System.out.println("├── importe: " + reserva.getImporte());
                             System.out.println("├── estado: " + reserva.getEstado());
-                            System.out.println("├── valoración: " + (reserva.getValoracion() != null ? reserva.getValoracion() : "Sin valoración"));
-                            System.out.println("├── cliente: " + reserva.getCliente().getNombre() + " " + reserva.getCliente().getApellidos());
+                            System.out.println("├── valoración: "
+                                    + (reserva.getValoracion() != null ? reserva.getValoracion() : "Sin valoración"));
+                            System.out.println("├── cliente: " + reserva.getCliente().getNombre() + " "
+                                    + reserva.getCliente().getApellidos());
                             System.out.println("└── turno: " + reserva.getTurno().getIdTurno());
                         }
                     }
@@ -317,21 +329,25 @@ public class DDSI_Practica {
                         System.out.print("Introduzca el idioma preferido: ");
                         String idioma = scanner.nextLine();
 
-                        Query<Cliente> consulta = sesion.createNamedQuery("Cliente.findByIdiomaPreferidoNative", Cliente.class)
+                        Query<Cliente> consulta = sesion
+                                .createNamedQuery("Cliente.findByIdiomaPreferidoNative", Cliente.class)
                                 .setParameter("idiomaPreferido", idioma);
                         List<Cliente> clientes = consulta.getResultList();
 
                         System.out.println("""
-                                   --------------------------------------
-                                   |        Listado de Clientes         |
-                                   --------------------------------------""");
+                                --------------------------------------
+                                |        Listado de Clientes         |
+                                --------------------------------------""");
 
                         for (Cliente cliente : clientes) {
                             System.out.println("*******************");
-                            System.out.println(cliente.getIdCliente() + ": " + cliente.getNombre() + " " + cliente.getApellidos());
-                            System.out.println("├── teléfono: " + (cliente.getTelefono() != null ? cliente.getTelefono() : "Sin teléfono"));
+                            System.out.println(
+                                    cliente.getIdCliente() + ": " + cliente.getNombre() + " " + cliente.getApellidos());
+                            System.out.println("├── teléfono: "
+                                    + (cliente.getTelefono() != null ? cliente.getTelefono() : "Sin teléfono"));
                             System.out.println("├── fecha nacimiento: " + cliente.getFechaNacimiento());
-                            System.out.println("├── email: " + (cliente.getEmail() != null ? cliente.getEmail() : "Sin email"));
+                            System.out.println(
+                                    "├── email: " + (cliente.getEmail() != null ? cliente.getEmail() : "Sin email"));
                             System.out.println("├── idioma preferido: " + cliente.getIdiomaPreferido());
                             System.out.println("└── categoría: " + cliente.getCategoria());
                         }
@@ -393,7 +409,7 @@ public class DDSI_Practica {
                             System.out.println("No existe ningun cliente con el email: " + email);
                         } else {
                             sesion.remove(cliente);
-                            sesion.flush();
+                            sesion.flush(); // hace que se ejecute DELETE ya, antes de llegar al commit
                             System.out.println("Cliente eliminado correctamente: " + cliente.getIdCliente());
                         }
 
@@ -416,9 +432,9 @@ public class DDSI_Practica {
                                     + " no tiene turnos asignados.");
                         } else {
                             System.out.println("""
-                                       --------------------------------------
-                                       |      Turnos asignados al guia      |
-                                       --------------------------------------""");
+                                    --------------------------------------
+                                    |      Turnos asignados al guia      |
+                                    --------------------------------------""");
                             System.out.println("Guia: " + guia.getNombre() + " " + guia.getApellidos());
                             for (Turno turno : guia.getTurnos()) {
                                 System.out.println("*******************");
@@ -455,13 +471,15 @@ public class DDSI_Practica {
                                         + " no tiene reservas activas (no canceladas).");
                             } else {
                                 System.out.println("""
-                                           --------------------------------------
-                                           |   Aventuras reservadas (activas)   |
-                                           --------------------------------------""");
+                                        --------------------------------------
+                                        |   Aventuras reservadas (activas)   |
+                                        --------------------------------------""");
                                 for (Aventura aventura : aventuras) {
                                     System.out.println("*******************");
                                     System.out.println(aventura.getIdAventura() + ": " + aventura.getNombre());
-                                    System.out.println("├── descripcion: " + (aventura.getDescripcion() != null ? aventura.getDescripcion() : "Sin descripcion"));
+                                    System.out.println("├── descripcion: "
+                                            + (aventura.getDescripcion() != null ? aventura.getDescripcion()
+                                            : "Sin descripcion"));
                                     System.out.println("├── tipo: " + aventura.getTipo());
                                     System.out.println("├── dificultad: " + aventura.getDificultad());
                                     System.out.println("├── duracion: " + aventura.getDuracion());
@@ -478,7 +496,8 @@ public class DDSI_Practica {
                             throw new IllegalArgumentException("Introduce el nombre de la aventura");
                         }
 
-                        // como nombre de aventura no es único, puede haber varias aventuras con mismo nombre
+                        // como nombre de aventura no es único, puede haber varias aventuras con mismo
+                        // nombre
                         List<Aventura> aventuras = sesion.createNamedQuery("Aventura.findByNombre", Aventura.class)
                                 .setParameter("nombre", nombreAventura).getResultList();
 
@@ -501,27 +520,31 @@ public class DDSI_Practica {
                                 }
 
                                 System.out.println("""
-                                           --------------------------------------
-                                           |    Clientes con reserva activa     |
-                                           --------------------------------------""");
-                                System.out.println("Aventura: " + aventura.getIdAventura() + " - " + aventura.getNombre());
+                                        --------------------------------------
+                                        |    Clientes con reserva activa     |
+                                        --------------------------------------""");
+                                System.out.println(
+                                        "Aventura: " + aventura.getIdAventura() + " - " + aventura.getNombre());
 
                                 if (listaClientes.isEmpty()) {
                                     System.out.println("No hay clientes con reservas no canceladas en esta aventura.");
                                 } else {
                                     for (Cliente cliente : listaClientes) {
                                         System.out.println("*******************");
-                                        System.out.println(cliente.getIdCliente() + ": " + cliente.getNombre() + " " + cliente.getApellidos());
-                                        System.out.println("├── telefono: " + (cliente.getTelefono() != null ? cliente.getTelefono() : "Sin telefono"));
+                                        System.out.println(cliente.getIdCliente() + ": " + cliente.getNombre() + " "
+                                                + cliente.getApellidos());
+                                        System.out.println("├── telefono: "
+                                                + (cliente.getTelefono() != null ? cliente.getTelefono()
+                                                : "Sin telefono"));
                                         System.out.println("├── fecha nacimiento: " + cliente.getFechaNacimiento());
-                                        System.out.println("├── email: " + (cliente.getEmail() != null ? cliente.getEmail() : "Sin email"));
+                                        System.out.println("├── email: "
+                                                + (cliente.getEmail() != null ? cliente.getEmail() : "Sin email"));
                                         System.out.println("├── idioma preferido: " + cliente.getIdiomaPreferido());
                                         System.out.println("└── categoria: " + cliente.getCategoria());
                                     }
                                 }
                             }
                         }
-
                     }
                     case 0 -> {
                     }
@@ -536,10 +559,11 @@ public class DDSI_Practica {
                 if (tr != null && tr.isActive()) {
                     tr.rollback();
                 }
-                System.out.println("No se puede completar la operacion por restriccion de integridad (clave ajena/unica).");
+                System.out.println(
+                        "No se puede completar la operacion por restriccion de integridad (clave ajena/unica).");
             } catch (Exception e) {
                 if (tr != null && tr.isActive()) {
-                    //rollback en caso de error o consulta no completa
+                    // rollback en caso de error o consulta no completa
                     tr.rollback();
                 }
                 System.out.println("Error en la recuperación "
@@ -550,10 +574,10 @@ public class DDSI_Practica {
                 }
 
             }
-//            System.out.println("Pulse \"Enter\" para continuar");
-//            scanner.next(); 
-//            System.out.print("\033[H\033[2J");
-//            System.out.flush();
+            // System.out.println("Pulse \"Enter\" para continuar");
+            // scanner.next();
+            // System.out.print("\033[H\033[2J");
+            // System.out.flush();
 
         } while (opcion != 0);
     }
