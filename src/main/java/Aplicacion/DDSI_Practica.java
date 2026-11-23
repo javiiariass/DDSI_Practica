@@ -7,7 +7,9 @@ package Aplicacion;
  *
  * @author javi
  */
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -65,6 +67,46 @@ public class DDSI_Practica {
             default ->
                 throw new IllegalArgumentException("Categoría no válida: " + categoria);
         }
+    }
+
+    // TODO refactor -> Crear clase aplicar RN. Regla RN6
+    static void comprobarFechaReservaValida(LocalDateTime fechaReserva, LocalDateTime fechaTurno)
+            throws IllegalStateException {
+
+        if (!fechaReserva.isBefore(fechaTurno)) {
+            throw new IllegalStateException("La fecha de la reserva debe ser anterior a la fecha del turno");
+        }
+    }
+
+    // TODO refactor -> Crear clase aplicar RN. Regla RN7
+    static void comprobarEdadMinimaClienteParaAventura(Turno turno, LocalDate fechaNacimientoCliente)
+            throws IllegalStateException {
+        int edadMinimaAventura = turno.getAventura().getEdadMinima();
+        int edadCliente = Period.between(fechaNacimientoCliente, turno.getFechaHora().toLocalDate())
+                .getYears();
+
+        if (edadCliente < edadMinimaAventura) {
+            throw new IllegalStateException("La edad del cliente (" + edadCliente
+                    + ") no cumple la edad mínima de la aventura (" + edadMinimaAventura + ").");
+        }
+    }
+
+    // TODO refactor -> Crear clase aplicar RN. Regla RN8
+    static void comprobarCapacidadTurno(Turno turno) {
+
+        int contador = 0;
+        Set<Reserva> reservas = turno.getReservas();
+        for (Reserva reservaActual : reservas) {
+            if ("CONFIRMADA".equals(reservaActual.getEstado())) {
+                contador++;
+            }
+        }
+
+        if (contador >= turno.getCapacidad()) {
+            throw new IllegalStateException(
+                    "El turno ya tiene " + contador + "/" + turno.getCapacidad() + " plazas ocupadas");
+        }
+
     }
 
     // TODO refactor -> Crear clase aplicar RN. Regla R13
@@ -545,6 +587,76 @@ public class DDSI_Practica {
                                 }
                             }
                         }
+                    }
+                    case 16 -> {
+                        System.out.print("Introduzca el identificador del cliente (ej. CL001): ");
+                        String idCliente = scanner.nextLine().trim().toUpperCase();
+                        System.out.print("Introduzca el identificador del turno (ej. T0001): ");
+                        String idTurno = scanner.nextLine().trim().toUpperCase();
+                        if (idCliente.isEmpty() || idTurno.isEmpty()) {
+                            throw new IllegalArgumentException(
+                                    "El identificador de cliente y de turno son obligatorios.");
+                        }
+
+                        Cliente clienteBuscado = sesion.find(Cliente.class, idCliente);
+                        Turno turnoBuscado = sesion.find(Turno.class, idTurno);
+
+                        if (clienteBuscado == null) {
+                            throw new IllegalArgumentException(
+                                    "El cliente con id " + idCliente + " no se encuentra en la base de datos");
+                        }
+                        if (turnoBuscado == null) {
+                            throw new IllegalArgumentException(
+                                    "El turno con id " + idTurno + " no se encuentra en la base de datos");
+                        }
+
+                        // comprobar si el cliente tiene reserva
+                        boolean encontrado = false;
+                        for (Reserva reservaActual : turnoBuscado.getReservas()) {
+                            if (reservaActual.getCliente().equals(clienteBuscado)) {
+                                encontrado = true;
+                                break;
+                            }
+                        }
+
+                        if (encontrado) {
+                            throw new IllegalStateException("El cliente " + idCliente
+                                    + " ya tiene una reserva en el turno " + turnoBuscado.getIdTurno() + ".");
+                        }
+
+                        LocalDateTime fechaReserva = LocalDateTime.now();
+                        comprobarFechaReservaValida(fechaReserva, turnoBuscado.getFechaHora());
+
+                        comprobarEdadMinimaClienteParaAventura(turnoBuscado,
+                                clienteBuscado.getFechaNacimiento());
+
+                        String estadoReserva = "CONFIRMADA";
+                        comprobarCapacidadTurno(turnoBuscado);
+
+                        BigDecimal precioAventura = turnoBuscado.getAventura().getPrecio();
+
+                        // Añadir cliente
+                        String ultimoId = sesion.createQuery(
+                                "SELECT MAX(r.idReserva) FROM Reserva r", String.class)
+                                .uniqueResult();
+                        String idReserva = siguienteId("R", 4, ultimoId);
+
+                        Reserva reservaCliente = new Reserva(idReserva, fechaReserva, precioAventura, estadoReserva,
+                                null, clienteBuscado, turnoBuscado);
+
+                        clienteBuscado.getReservas().add(reservaCliente);
+                        turnoBuscado.getReservas().add(reservaCliente);
+                        sesion.persist(reservaCliente);
+
+                        System.out.println("Reserva creada correctamente:");
+                        System.out.println("Reserva: " + reservaCliente.getIdReserva());
+                        System.out.println("├── cliente: " + clienteBuscado.getIdCliente() + " - "
+                                + clienteBuscado.getNombre() + " " + clienteBuscado.getApellidos());
+                        System.out.println("├── turno: " + turnoBuscado.getIdTurno() + " ("
+                                + turnoBuscado.getAventura().getNombre() + " - " + turnoBuscado.getFechaHora() + ")");
+                        System.out.println("├── fecha reserva: " + reservaCliente.getFechaReserva());
+                        System.out.println("├── importe: " + reservaCliente.getImporte());
+                        System.out.println("└── estado: " + reservaCliente.getEstado());
                     }
                     case 0 -> {
                     }
