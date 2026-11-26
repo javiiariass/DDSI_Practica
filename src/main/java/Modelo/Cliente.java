@@ -42,38 +42,38 @@ import java.util.Set;
 public class Cliente implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @Basic(optional = false)
     @Column(name = "idCliente")
     private String idCliente;
-    
+
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
-    
+
     @Basic(optional = false)
     @Column(name = "apellidos")
     private String apellidos;
-    
+
     @Column(name = "telefono")
     private String telefono;
-    
+
     @Basic(optional = false)
     @Column(name = "fechaNacimiento")
     private LocalDate fechaNacimiento;
-    
+
     @Column(name = "email")
     private String email;
-    
+
     @Basic(optional = false)
     @Column(name = "idiomaPreferido")
     private String idiomaPreferido;
-    
+
     @Basic(optional = false)
     @Column(name = "categoria")
     private String categoria;
-    
+
     @OneToMany(mappedBy = "cliente")
     private Set<Reserva> reservas = new HashSet<Reserva>();
 

@@ -36,41 +36,41 @@ import java.util.Set;
 public class Aventura implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @Basic(optional = false)
     @Column(name = "idAventura")
     private String idAventura;
-    
+
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
-    
+
     @Lob
     @Column(name = "descripcion")
     private String descripcion;
-    
+
     @Basic(optional = false)
     @Column(name = "tipo")
     private String tipo;
-    
+
     @Basic(optional = false)
     @Column(name = "dificultad")
     private String dificultad;
-    
+
     @Basic(optional = false)
     @Column(name = "duracion")
     private short duracion;
-    
+
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @Column(name = "precio")
     private BigDecimal precio;
-    
+
     @Basic(optional = false)
     @Column(name = "edadMinima")
     private short edadMinima;
-    
+
     @OneToMany(mappedBy = "aventura")
     private Set<Turno> turnos = new HashSet<Turno>();
 
@@ -81,7 +81,7 @@ public class Aventura implements Serializable {
         this.idAventura = idAventura;
     }
 
-    public Aventura(String idAventura, String nombre, String tipo, 
+    public Aventura(String idAventura, String nombre, String tipo,
             String dificultad, short duracion, BigDecimal precio, short edadMinima) {
         this.idAventura = idAventura;
         this.nombre = nombre;
@@ -103,7 +103,7 @@ public class Aventura implements Serializable {
         this.precio = precio;
         this.edadMinima = edadMinima;
     }
-    
+
     public String getIdAventura() {
         return idAventura;
     }
@@ -200,5 +200,5 @@ public class Aventura implements Serializable {
     public String toString() {
         return "Modelo.Aventura[ idAventura=" + idAventura + " ]";
     }
-    
+
 }

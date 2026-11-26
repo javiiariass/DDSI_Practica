@@ -24,6 +24,7 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import Config.HibernateUtil;
+import Controlador.ControladorPrincipal;
 import Modelo.Aventura;
 import Modelo.Cliente;
 import Modelo.Guia;
@@ -135,20 +136,25 @@ public class DDSI_Practica {
     public static void main(String[] args) {
 
         // obtenemos fabrica
-        SessionFactory sessionFactory;
+        SessionFactory sessionFactory = null;
         try {
             // Se obtiene la SessionFactory definida en HibernateUtil
             sessionFactory = HibernateUtil.getSessionFactory();
             System.out.println("Hibernate inicializado correctamente");
 
-            System.out.println("Iniciando consultas");
-            consultas(sessionFactory);
+            System.out.println("Iniciando app");
+            new ControladorPrincipal(sessionFactory);
+            // consultas(sessionFactory);
 
         } catch (ExceptionInInitializerError e) {
-            Throwable cause = e.getCause();
-            System.out.println("Error al inicializar Hibernate. Revise el fichero .cfg.xml: " + cause.getMessage());
+            System.out.println(
+                    "Error al inicializar Hibernate. Revise el fichero .cfg.xml: " + e.getCause().getMessage());
+        } catch (Exception e) {
+            System.out.println("Error durante la ejecución de la aplicación: " + e.getMessage());
         } finally {
-            HibernateUtil.close();
+            if (sessionFactory != null && !sessionFactory.isClosed()) {
+                sessionFactory.close();
+            }
         }
 
     }
@@ -319,9 +325,9 @@ public class DDSI_Practica {
 
                         Query<Turno> consulta = sesion.createNativeQuery(
                                 "SELECT * "
-                                + "FROM TURNO t "
-                                + "WHERE t.idAventura = :idAventura "
-                                + "AND t.capacidad >= :capacidadMinima",
+                                        + "FROM TURNO t "
+                                        + "WHERE t.idAventura = :idAventura "
+                                        + "AND t.capacidad >= :capacidadMinima",
                                 Turno.class)
                                 .setParameter("capacidadMinima", numCap)
                                 .setParameter("idAventura", idAventura);
@@ -521,7 +527,7 @@ public class DDSI_Practica {
                                     System.out.println(aventura.getIdAventura() + ": " + aventura.getNombre());
                                     System.out.println("├── descripcion: "
                                             + (aventura.getDescripcion() != null ? aventura.getDescripcion()
-                                            : "Sin descripcion"));
+                                                    : "Sin descripcion"));
                                     System.out.println("├── tipo: " + aventura.getTipo());
                                     System.out.println("├── dificultad: " + aventura.getDificultad());
                                     System.out.println("├── duracion: " + aventura.getDuracion());
@@ -577,7 +583,7 @@ public class DDSI_Practica {
                                                 + cliente.getApellidos());
                                         System.out.println("├── telefono: "
                                                 + (cliente.getTelefono() != null ? cliente.getTelefono()
-                                                : "Sin telefono"));
+                                                        : "Sin telefono"));
                                         System.out.println("├── fecha nacimiento: " + cliente.getFechaNacimiento());
                                         System.out.println("├── email: "
                                                 + (cliente.getEmail() != null ? cliente.getEmail() : "Sin email"));
@@ -729,9 +735,9 @@ public class DDSI_Practica {
 
                         Query<Object[]> consulta = sesion.createQuery(
                                 "SELECT t.aventura.nombre, t.fechaHora, t.aventura.duracion "
-                                + "FROM Turno t "
-                                + "WHERE t.guia.email = :email "
-                                + "ORDER BY t.fechaHora ASC",
+                                        + "FROM Turno t "
+                                        + "WHERE t.guia.email = :email "
+                                        + "ORDER BY t.fechaHora ASC",
                                 Object[].class)
                                 .setParameter("email", email);
 
@@ -792,7 +798,8 @@ public class DDSI_Practica {
                                     System.out.println("*******************");
                                     System.out.println("Reserva: " + reserva.getIdReserva());
                                     System.out.println("├── aventura: " + reserva.getTurno().getAventura().getNombre());
-                                    System.out.println("├── fecha y hora del turno: " + reserva.getTurno().getFechaHora());
+                                    System.out.println(
+                                            "├── fecha y hora del turno: " + reserva.getTurno().getFechaHora());
                                     System.out.println("└── importe: " + reserva.getImporte());
                                 }
                             }

@@ -33,16 +33,16 @@ import java.util.Set;
 public class Turno implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @Basic(optional = false)
     @Column(name = "idTurno")
     private String idTurno;
-    
+
     @Basic(optional = false)
     @Column(name = "fechaHora")
     private LocalDateTime fechaHora;
-    
+
     @Basic(optional = false)
     @Column(name = "capacidad")
     private short capacidad;
